@@ -18,10 +18,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <div className='grid place-items-center h-screen bf-gray-300'>
-          <div className='flex bg-gray-200 -mt-12 h-[90vh] w-[90vw] shadow-lg'>
-            <GlobalContextProvider>{children}</GlobalContextProvider>
-          </div>
+        <div>
+          <GlobalContextProvider>{children}</GlobalContextProvider>
         </div>
       </body>
     </html>
