@@ -5,7 +5,7 @@ import { DocumentData, DocumentReference, DocumentSnapshot, QueryDocumentSnapsho
 export type Message = {
   id: string,
   content: string,
-  seen: Date,
+  seen?: Date,
   sender: string,
   sent: Date,
 }
@@ -44,13 +44,13 @@ export const getUserChats = async (uid: string): Promise<Chat[]> => {
         title: chatSnap?.data().title,
         messages: chatSnap?.data().messages
           .sort((a: MessageRef, b: MessageRef): number =>
-            a.timestamp.toDate().getTime() - b.timestamp.toDate().getTime()),
+            b.timestamp.toDate().getTime() - a.timestamp.toDate().getTime()),
       } as Chat
     })];
     userChats.sort((c1: Chat, c2: Chat): number => {
       const c1Ts = c1.messages[0]?.timestamp.toDate().getTime();
       const c2Ts = c2.messages[0]?.timestamp.toDate().getTime();
-      return c1Ts - c2Ts;
+      return c2Ts - c1Ts;
     })
   } else {
     console.error("Not found!");
@@ -79,7 +79,6 @@ export const getLatestMessages = async (chat: Chat): Promise<Message[]> => {
         return null;
       }
       if (!msgSnap.data().content ||
-        !msgSnap.data().seen ||
         !msgSnap.data().sender ||
         !msgSnap.data().sent) {
         return null;
@@ -88,7 +87,7 @@ export const getLatestMessages = async (chat: Chat): Promise<Message[]> => {
       return {
         id: msgSnap.id,
         content: msgSnap.data().content as string,
-        seen: (msgSnap.data().seen as Timestamp).toDate() as Date,
+        seen: (msgSnap.data().seen as Timestamp | null)?.toDate() as Date | null,
         sender: msgSnap.data().sender as string,
         sent: (msgSnap.data().sent as Timestamp).toDate() as Date,
       } as Message;

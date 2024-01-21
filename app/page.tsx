@@ -8,13 +8,15 @@ import { getUserFromCache } from './local/utils';
 import Loading from './components/Loading';
 import Sidebar from './components/Sidebar';
 import ChatArea from './components/ChatArea';
-import { Message, getLatestMessages, getUserChats } from './api/database';
+import { Chat, Message, getLatestMessages, getUserChats } from './api/database';
 
 export default function Home() {
   const { userId, setUserId, setData } = useGlobalContext();
-  const [chatMessages, setChatMessages] = useState(new Map<string, Message[]>());
+  const [selectedChat, setSelectedChat] = useState<string | null>(null);
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [chatMessages, setChatMessages] = useState<Map<string, Message[]>>(new Map<string, Message[]>());
 
-  const router = useRouter();
+  const router = useRouter(); 
 
   useEffect(() => {
     const cachedUser: User | null = getUserFromCache();
@@ -29,26 +31,30 @@ export default function Home() {
   }, [userId, router, setData, setUserId])
 
   useEffect(() => {
+    console.log('useEffect Chatmessages')
     if (userId) {
       // clean chats and messages
       setChatMessages(new Map() as Map<string, Message[]>);
-      // get user chats
-      // get chats last 50 messages
-      // put messages in hashmap
       getUserChats(userId)
-        .then(chats => chats.forEach(chat => getLatestMessages(chat)
+        .then(chats => {
+          setChats(() => chats);
+          chats.forEach(chat => getLatestMessages(chat)
           .then(msgs => {
-            const newChatMessages = new Map(chatMessages)
-            newChatMessages.set(chat.id, msgs);
-            console.log('chatMessages', chatMessages)
-            console.log('newChatMessages', newChatMessages)
-            setChatMessages(newChatMessages);
+            setChatMessages(prevChatMessages => {
+              const newChatMessages = new Map(prevChatMessages);
+              newChatMessages.set(chat.id, msgs);
+              return newChatMessages;
+            });
           })
-          ))
+          )})
           .catch(e => console.error(e));
         }
-  }, [userId])
-  
+      }, [userId])
+      
+      useEffect(() => {
+        console.log('new messages', chatMessages)
+
+      }, [chatMessages])
 
   return (
     <div className='grid place-items-center h-screen bf-gray-300'>
@@ -62,7 +68,7 @@ export default function Home() {
               <Sidebar />
             </div>
             <div className='w-2/3 border-2 border-green-500 p-4 rounded-r-lg'>
-              <ChatArea />
+              <ChatArea chatId={'PentqdTlzC3kUdAzeSSn'} chatMessagesMap={[chatMessages, setChatMessages]} />
             </div>
           </div>
         )}
