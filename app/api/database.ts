@@ -1,13 +1,28 @@
+import firebase from "firebase/compat/app";
+import 'firebase/compat/firestore'
 import { db } from "../firebaseConfig";
 
-import { DocumentData, DocumentReference, DocumentSnapshot, QueryDocumentSnapshot, Timestamp, collection, doc, getDoc, query } from "firebase/firestore";
+import { DocumentData, DocumentReference, DocumentSnapshot, QueryDocumentSnapshot, Timestamp, addDoc, arrayUnion, collection, doc, getDoc, query, updateDoc } from "firebase/firestore";
 
+export const enum MessageStatus {
+  SYNCED,
+  NON_SYNCED
+}
 export type Message = {
   id: string,
   content: string,
   seen?: Date,
   sender: string,
   sent: Date,
+  status: MessageStatus
+}
+
+export type FirebaseMessage = {
+  id: string,
+  content: string,
+  seen?: Timestamp,
+  sender: string,
+  sent: Timestamp,
 }
 
 export type MessageRef = {
@@ -44,7 +59,7 @@ export const getUserChats = async (uid: string): Promise<Chat[]> => {
         title: chatSnap?.data().title,
         messages: chatSnap?.data().messages
           .sort((a: MessageRef, b: MessageRef): number =>
-            b.timestamp.toDate().getTime() - a.timestamp.toDate().getTime()),
+            a.timestamp.toDate().getTime() - b.timestamp.toDate().getTime()),
       } as Chat
     })];
     userChats.sort((c1: Chat, c2: Chat): number => {
@@ -90,6 +105,7 @@ export const getLatestMessages = async (chat: Chat): Promise<Message[]> => {
         seen: (msgSnap.data().seen as Timestamp | null)?.toDate() as Date | null,
         sender: msgSnap.data().sender as string,
         sent: (msgSnap.data().sent as Timestamp).toDate() as Date,
+        status: MessageStatus.SYNCED
       } as Message;
     })
     .filter(msg => !!msg)
@@ -97,3 +113,34 @@ export const getLatestMessages = async (chat: Chat): Promise<Message[]> => {
 
   return messages;
 };
+
+export const postMessageToServer = async (message: Message, chatId: string): Promise<void> => {
+  // convert message type
+  const firebaseMessage: FirebaseMessage = {
+    id: message.id,
+    content: message.content,
+    sender: message.sender,
+    sent: Timestamp.fromDate(message.sent),
+  }
+  // post message
+  let msgRef: DocumentReference;
+  try {
+    msgRef = await addDoc(collection(db, "messages"), firebaseMessage);
+  } catch (e) {
+    console.error("Error sending message", e);
+    return;
+  }
+  // add message ref to chat
+  const messageRef: MessageRef = {
+    reference: msgRef,
+    timestamp: firebaseMessage.sent,
+  }
+  try {
+    const chatRef: DocumentReference<DocumentData, DocumentData> = doc(db, 'chats', chatId);
+    await updateDoc(chatRef, {messages: arrayUnion(messageRef)});
+  } catch (e) {
+    console.error("Error sending message", e);
+    return;
+  }
+  message.status = MessageStatus.SYNCED
+}

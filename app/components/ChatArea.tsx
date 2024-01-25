@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { Message } from "../api/database";
+import { Message, MessageStatus, postMessageToServer } from "../api/database";
 import { Avatar, IconButton } from "@mui/material";
 import { AttachFile, InsertEmoticon, MoreVert, SearchOutlined } from "@mui/icons-material";
 import MessageCreatorArea from "./MessageCreatorArea";
@@ -25,6 +25,13 @@ const ChatArea: React.FC<ChatAreaProps> = ({ chatId, chatMessagesMap }) => {
       return [] as Message[];
     });
   }, [chatId, chatMessages])
+
+  useEffect(() => {
+    if (messages.length < 1 || !chatId) {return;}
+    const msg = [...messages].pop() as Message;
+    if (msg.status === MessageStatus.SYNCED) {return;}
+    postMessageToServer(msg, chatId);    
+  }, [messages])
 
   return (
     <div className={chat_class}>
@@ -56,9 +63,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({ chatId, chatMessagesMap }) => {
           </p>
         ))}
       </div>
-      <div className={chat_footer_class}>
-        <MessageCreatorArea />
-      </div>
+      <MessageCreatorArea msgState={[messages, setMessages]} />
     </div>
   )
 }

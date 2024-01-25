@@ -67,7 +67,7 @@ export default function Home() {
             <div className='w-1/3 border-2 border-blue-500 p-4 rounded-l-lg'>
               <Sidebar />
             </div>
-            <div className='w-2/3 border-2 border-green-500 p-4 rounded-r-lg'>
+            <div className='w-2/3 border-2 bg-green-800 p-4 rounded-r-lg'>
               <ChatArea chatId={'PentqdTlzC3kUdAzeSSn'} chatMessagesMap={[chatMessages, setChatMessages]} />
             </div>
           </div>
