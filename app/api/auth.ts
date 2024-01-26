@@ -1,5 +1,5 @@
 import { FirebaseError } from "firebase/app";
-import { User, UserCredential, createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import { User, UserCredential, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../firebaseConfig"
 import { Email } from "@mui/icons-material";
 
@@ -18,23 +18,35 @@ export const signInPopUp = async (setUser: Function) => {
 }
 export const createAccountEmail = async (email: string, password: string, setUser: Function) => {
     let user: User | null = null;
-    console.log('create')
     createUserWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-        // Signed up 
-        user = userCredential.user;
-        setUser(user)
-    })
-    .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.error(`Error: ${errorCode} - ${errorMessage}`, error);
-        // ..
-    });
-    return user;
-}
-
-export const signInEmail = async (email: string, password: string, setUser: Function) => {
-    console.log('sign in')
-
+        .then((userCredential) => {
+            // Signed up 
+            user = userCredential.user;
+            // TODO: create user in db OR do it on firebase side
+            setUser(user)
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            console.error(`Error: ${errorCode} - ${errorMessage}`, error);
+            // ..
+        });
+        return user;
+    }
+    
+    export const signInEmail = async (email: string, password: string, setUser: Function) => {
+        let user: User | null = null;
+        
+        signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            // Signed in 
+            const user = userCredential.user;
+            setUser(user)
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            console.error(`Error: ${errorCode} - ${errorMessage}`, error);
+        });
+        return user;
 }
