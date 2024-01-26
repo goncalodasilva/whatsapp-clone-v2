@@ -14,3 +14,6 @@ export const chat_footer_class: string = "bg-white p-2 flex bottom-0 border-t bo
 export const chat_footer_form_class: string = "flex w-full align-text-bottom";
 export const chat_footer_form_input_class: string = "flex-grow outline-none rounded-full w-full p-2.5 border-none";
 export const chat_footer_form_button_class: string = "hidden";
+
+export const login_button: string = "mt-12 text-white hover:bg-white hover:text-green-700 bg-green-700 h-10 rounded-lg";
+export const login_container: string = "p-24 m-5 h-full w-full grid place-items-center bg-[rgb(75,198,96)] rounded-lg shadow-md";

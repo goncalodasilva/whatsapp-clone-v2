@@ -5,11 +5,10 @@ import GoogleIcon from '@mui/icons-material/Google';
 import { useGlobalContext } from "../Context/store"
 import { setUserInCache } from "../local/utils"
 import { signInPopUp } from "../api/auth"
+import { login_button } from "../components/styles";
 
 const SignInButton = () => {
     const { setUserId, setData } = useGlobalContext();
-
-    
     
     const setUser = (user: User) => {
         setUserId(user.uid);
@@ -23,7 +22,7 @@ const SignInButton = () => {
     return (
         <div>
             <Button
-                className="mt-12 text-white hover:bg-white hover:text-green-700 bg-green-700 h-10 rounded-lg"
+                className={login_button}
                 variant="contained"
                 onClick={signIn}
                 startIcon={<GoogleIcon />}>
