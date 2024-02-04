@@ -26,12 +26,12 @@ const Login = () => {
     return (
         <div className={login_container}>
             <Image className="object-contain h-24 mb-10"
-                src="/whatsapp-logo.webp"
+                src="/logo-500.png"
                 alt=""
                 width={100}
                 height={100}
             />
-            <h1 className="text-xl font-bold text-green-800">Sign in to WhatsApp</h1>
+            <h1 className="text-xl font-bold text-slate-100">Sign in to WhatsApp</h1>
             <SignOrCreateAccountWithEmail isCreate={false} />
             <hr style={{ width: '50px', margin: '16px 0' }}></hr>
             <br />

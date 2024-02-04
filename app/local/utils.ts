@@ -8,6 +8,13 @@ export const setUserInCache = (user: User) => {
     sessionStorage.setItem(process.env.NEXT_PUBLIC_USER_OBJ || '', dataStr);
 }
 
+export const removeUserFromCache = () => {
+    if (typeof sessionStorage === undefined) {
+        return;
+    }
+    sessionStorage.removeItem(process.env.NEXT_PUBLIC_USER_OBJ || '');
+}
+
 export const getUserFromCache = (): User | null => {
     if (typeof sessionStorage === undefined) {
         return null;

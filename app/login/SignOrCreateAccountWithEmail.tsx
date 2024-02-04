@@ -64,7 +64,7 @@ const SignOrCreateAccountWithEmail: React.FC<SignOrCreateAccountWithEmailProps> 
                     className="flex flex-col justify-center items-center h-full m-5"
                     onSubmit={handleForm}>
                     <TextField
-                        className="bg-green-100"
+                        className="bg-slate-100"
                         type="email"
                         id="email"
                         name="email"
@@ -76,7 +76,7 @@ const SignOrCreateAccountWithEmail: React.FC<SignOrCreateAccountWithEmailProps> 
                         onChange={handleEmailChange}
                     />
                     <TextField
-                        className="bg-green-100"
+                        className="bg-slate-100"
                         type="password"
                         id="password"
                         name="password"
@@ -99,7 +99,7 @@ const SignOrCreateAccountWithEmail: React.FC<SignOrCreateAccountWithEmailProps> 
                 <br />
                 {!isCreate ?
                     (
-                        <p style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '0' }}>
+                        <p style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '0', color: 'white' }}>
                             You don't have an account yet? <Link href="/createAccountWithEmail">Create account with email</Link>
                         </p>
                     ) : (<br />)

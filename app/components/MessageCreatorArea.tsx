@@ -37,7 +37,7 @@ const MessageCreatorArea: React.FC<MessageCreatorAreaProps> = ({ msgState }) => 
                     className={chat_footer_form_input_class}
                     value={input}
                     onChange={e => setInput(e.target.value)}
-                    placeholder=""
+                    placeholder="Type your message here..."
                     type="text" />
                 <button className={chat_footer_form_button_class} type="submit">Send</button>
             </form>
