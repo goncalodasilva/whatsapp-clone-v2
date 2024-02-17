@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { Message, MessageStatus, postMessageToServer } from "../api/database";
+import { Chat, Message, MessageStatus, getLatestMessages, postMessageToServer } from "../api/database";
 import { Avatar, IconButton } from "@mui/material";
 import { AttachFile, InsertEmoticon, MoreVert, SearchOutlined } from "@mui/icons-material";
 import MessageCreatorArea from "./MessageCreatorArea";
@@ -10,23 +10,23 @@ import UserOptions from "./UserOptions";
 
 interface ChatAreaProps {
   selectedId: string | null;
-  chatMessagesMap: [Map<string, Message[]>, Dispatch<SetStateAction<Map<string, Message[]>>>];
 }
 
-const ChatArea: React.FC<ChatAreaProps> = ({ selectedId: selectedId, chatMessagesMap }) => {
-  const { userId } = useGlobalContext();
+const ChatArea: React.FC<ChatAreaProps> = ({ selectedId: selectedId }) => {
+  const { userId, chats, chatMessagesMap, setChatMessagesMap } = useGlobalContext();
   const [messages, setMessages] = useState<Message[]>([]);
-  const [chatMessages, setChatMessages] = chatMessagesMap;
+  const [bindedChannel, setBindedChannel] = useState<string>('');
+  
   useEffect(() => {
     setMessages(() => {
-      if (selectedId && chatMessages.has(selectedId)) {
+      if (selectedId && chatMessagesMap.has(selectedId)) {
         console.log('setting messages')
-        return chatMessages.get(selectedId) as Message[];
+        return chatMessagesMap.get(selectedId) as Message[];
       }
       console.log('resetting messages')
       return [] as Message[];
     });
-  }, [selectedId, chatMessages])
+  }, [selectedId])
 
   useEffect(() => {
     if (messages.length < 1 || !selectedId) { return; }
@@ -35,12 +35,13 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedId: selectedId, chatMessage
     postMessageToServer(msg, selectedId);
   }, [messages])
 
+
   return (
     <div className={chat_class}>
       {!selectedId ?
         <WelcomeInbox /> :
         <>
-          {!chatMessages.has(selectedId) ?
+          {!chatMessagesMap.has(selectedId) ?
             <>
               {(selectedId as string) === userId ?
                 <UserOptions /> :

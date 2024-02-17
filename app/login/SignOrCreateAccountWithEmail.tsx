@@ -100,7 +100,7 @@ const SignOrCreateAccountWithEmail: React.FC<SignOrCreateAccountWithEmailProps> 
                 {!isCreate ?
                     (
                         <p style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '0', color: 'white' }}>
-                            You don't have an account yet? <Link href="/createAccountWithEmail">Create account with email</Link>
+                            You don &apos t have an account yet? <Link href="/createAccountWithEmail">Create account with email</Link>
                         </p>
                     ) : (<br />)
                 }

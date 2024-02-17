@@ -8,15 +8,23 @@ import { getUserFromCache } from './local/utils';
 import Loading from './components/Loading';
 import Sidebar from './components/Sidebar';
 import ChatArea from './components/ChatArea';
-import { Chat, Message, getLatestMessages, getUserChats } from './api/database';
+import { Chat, Message, getLatestMessages, getUserChats, sendTokenToDB } from './api/database';
 
 export default function Home() {
-  const { userId, setUserId, setData, setChats } = useGlobalContext();
+  const { userId, setUserId, setData, setChats, setChatMessagesMap } = useGlobalContext();
   // selected chat or the user avatar if string === userId
   const [selected, setSelected] = useState<string | null>(null);
-  const [chatMessagesMap, setChatMessagesMap] = useState<Map<string, Message[]>>(new Map<string, Message[]>());
 
   const router = useRouter();
+
+  function requestNotificationPermission() {
+    console.log('Requesting permission...');
+    Notification.requestPermission().then((permission) => {
+      if (permission === 'granted') {
+        console.log('Notification permission granted.');
+      }
+    })
+  }
 
   useEffect(() => {
     const cachedUser: User | null = getUserFromCache();
@@ -31,7 +39,12 @@ export default function Home() {
   }, [userId, router, setData, setUserId])
 
   useEffect(() => {
+    requestNotificationPermission()
+  }, []);
+
+  useEffect(() => {
     console.log('useEffect Chatmessages')
+    sendTokenToDB(userId);
     if (userId) {
       // clean chats and messages
       setChatMessagesMap(new Map() as Map<string, Message[]>);
@@ -52,10 +65,6 @@ export default function Home() {
     }
   }, [userId])
 
-  useEffect(() => {
-    console.log('new messages', chatMessagesMap)
-
-  }, [chatMessagesMap])
 
   return (
     <div className='grid place-items-center h-screen bf-gray-300'>
@@ -69,7 +78,7 @@ export default function Home() {
               <Sidebar setSelected={setSelected} />
             </div>
             <div className='w-2/3 border-2 bg-slate-800 p-4 rounded-r-lg'>
-              <ChatArea selectedId={selected} chatMessagesMap={[chatMessagesMap, setChatMessagesMap]} />
+              <ChatArea selectedId={selected} />
             </div>
           </div>
         )}

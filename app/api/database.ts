@@ -1,8 +1,8 @@
 import firebase from "firebase/compat/app";
 import 'firebase/compat/firestore'
-import { db } from "../firebaseConfig";
+import { db, token } from "../firebaseConfig";
 
-import { DocumentData, DocumentReference, DocumentSnapshot, QueryDocumentSnapshot, Timestamp, addDoc, arrayUnion, collection, doc, getDoc, query, updateDoc } from "firebase/firestore";
+import { DocumentData, DocumentReference, DocumentSnapshot, QueryDocumentSnapshot, Timestamp, addDoc, arrayUnion, collection, doc, getDoc, query, setDoc, updateDoc } from "firebase/firestore";
 
 export const enum MessageStatus {
   SYNCED,
@@ -75,7 +75,7 @@ export const getUserChats = async (uid: string): Promise<Chat[]> => {
 
 export const getLatestMessages = async (chat: Chat): Promise<Message[]> => {
   let messages: Message[] = [];
-  const latestMessagesRef: DocumentReference[] = chat.messages.slice(0, 5).map(msg => msg.reference);
+  const latestMessagesRef: DocumentReference[] = chat.messages.slice(0, 50).map(msg => msg.reference);
   const messagesSnap: (QueryDocumentSnapshot<DocumentData, DocumentData> | null)[] =
     await Promise.all(latestMessagesRef.map(async (msgRef) => {
       const msgSnap = await getDoc(msgRef);
@@ -143,4 +143,31 @@ export const postMessageToServer = async (message: Message, chatId: string): Pro
     return;
   }
   message.status = MessageStatus.SYNCED
+}
+
+export const sendTokenToDB = async (userId: string) => {
+  if (!userId || !token) { return; }
+  const obj = {
+    token: token,
+    timestamp: Timestamp.now(),
+  }
+  // check if there is a document with id = userId
+  const userRef = doc(db, "fcmTokens", userId);
+  const userSnap = await getDoc(userRef);
+  if (userSnap.exists()) {
+    console.info("User already exists");
+    // check if token = document.token
+    const user = userSnap.data();
+    if (user && user.token === token) {
+      console.info("Token already exists");
+      return;
+    }
+  }
+
+  try {
+    console.info("Sending token", token)
+    await setDoc(doc(collection(db, "fcmTokens"), userId), obj);
+  } catch (e) {
+    console.error("Error sending token", e);
+  }
 }

@@ -3,7 +3,7 @@
 
 import { User } from "firebase/auth";
 import { createContext, useContext, Dispatch, SetStateAction, useState } from "react";
-import { Chat } from '../api/database';
+import { Chat, Message } from '../api/database';
 
 type DataType = {
     user: User
@@ -16,6 +16,8 @@ interface ContextProps {
     setData: Dispatch<SetStateAction<DataType | null>>,
     chats: Chat[],
     setChats: Dispatch<SetStateAction<Chat[]>>,
+    chatMessagesMap: Map<string, Message[]>,
+    setChatMessagesMap: Dispatch<SetStateAction<Map<string, Message[]>>>,
 }
 
 const GlobalContext = createContext<ContextProps>({
@@ -24,16 +26,19 @@ const GlobalContext = createContext<ContextProps>({
     data: null,
     setData: (): DataType | null => null,
     chats: [], 
-    setChats: (): Chat[] => []
+    setChats: (): Chat[] => [],
+    chatMessagesMap: new Map<string, Message[]>(),
+    setChatMessagesMap: (): Map<string, Message[]> => new Map<string, Message[]>()
 })
 
-export const GlobalContextProvider = ({ children }) => {
+export const GlobalContextProvider = ({ children }: { children: React.ReactNode }) => {
     const [userId, setUserId] = useState('');
     const [data, setData] = useState<null | DataType>(null);
     const [chats, setChats] = useState<Chat[]>([]);
+    const [chatMessagesMap, setChatMessagesMap] = useState<Map<string, Message[]>>(new Map<string, Message[]>());
     
     return (
-        <GlobalContext.Provider value={{ userId, setUserId, data, setData, chats, setChats }}>
+        <GlobalContext.Provider value={{ userId, setUserId, data, setData, chats, setChats, chatMessagesMap, setChatMessagesMap }}>
             {children}
         </GlobalContext.Provider>
     )
